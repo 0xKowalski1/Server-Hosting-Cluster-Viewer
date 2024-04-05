@@ -4,12 +4,12 @@ import (
 	"html/template"
 	"io"
 
-	"github.com/0xKowalski1/server-hosting/apiwrapper"
+	"0xKowalski1/container-orchestrator/api"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-var apiClient *apiwrapper.Client // API client instance
+var apiClient *api.WrapperClient // API client instance
 
 type Template struct {
 	tmpl *template.Template
@@ -26,7 +26,7 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 }
 
 func main() {
-	apiClient = apiwrapper.NewClient() // Initialize the API client
+	apiClient = api.NewApiWrapper() // Initialize the API client
 
 	e := echo.New()
 
@@ -57,7 +57,7 @@ func listContainers(c echo.Context) error {
 func createContainer(c echo.Context) error {
 	namespace := "example"
 
-	req := apiwrapper.CreateContainerRequest{
+	req := api.CreateContainerRequest{
 		ID:          c.FormValue("id"),     // Use a unique identifier
 		Image:       c.FormValue("image"),  // Specify the container image
 		Env:         []string{"EULA=TRUE"}, // Any environment variables
