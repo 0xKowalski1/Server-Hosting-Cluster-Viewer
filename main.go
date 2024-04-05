@@ -55,24 +55,24 @@ func listContainers(c echo.Context) error {
 }
 
 func createContainer(c echo.Context) error {
-	namespace := "example" // Your namespace here
+	namespace := "example"
 
 	req := apiwrapper.CreateContainerRequest{
-		ID:          "minecraft-server",                       // Use a unique identifier
-		Image:       "docker.io/itzg/minecraft-server:latest", // Specify the container image
-		Env:         []string{"EULA=TRUE"},                    // Any environment variables
+		ID:          c.FormValue("id"),     // Use a unique identifier
+		Image:       c.FormValue("image"),  // Specify the container image
+		Env:         []string{"EULA=TRUE"}, // Any environment variables
 		StopTimeout: 5,
 	}
 
-	_, err := apiClient.CreateContainer(namespace, req)
+	container, err := apiClient.CreateContainer(namespace, req)
 	if err != nil {
 		return err
 	}
-	return nil
+	return c.Render(200, "container", container)
 }
 
 func deleteContainer(c echo.Context) error {
-	namespace := "example" // Your namespace here
+	namespace := "example"
 
 	_, err := apiClient.DeleteContainer(namespace, c.Param("id"))
 
@@ -83,7 +83,7 @@ func deleteContainer(c echo.Context) error {
 }
 
 func startContainer(c echo.Context) error {
-	namespace := "example" // Your namespace here
+	namespace := "example"
 
 	_, err := apiClient.StartContainer(namespace, c.Param("id"))
 
@@ -94,7 +94,7 @@ func startContainer(c echo.Context) error {
 }
 
 func stopContainer(c echo.Context) error {
-	namespace := "example" // Your namespace here
+	namespace := "example"
 
 	_, err := apiClient.StopContainer(namespace, c.Param("id"))
 

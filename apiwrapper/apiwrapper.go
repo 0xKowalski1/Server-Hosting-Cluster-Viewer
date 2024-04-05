@@ -63,12 +63,18 @@ func (c *Client) CreateContainer(namespace string, req CreateContainerRequest) (
 		return nil, fmt.Errorf("API request failed with status code %d", response.StatusCode)
 	}
 
-	var container Container
-	if err := json.NewDecoder(response.Body).Decode(&container); err != nil {
+	type ContainerResponse struct {
+		Container Container `json:"container"`
+	}
+
+	var containerResponse ContainerResponse
+	if err := json.NewDecoder(response.Body).Decode(&containerResponse); err != nil {
 		return nil, err
 	}
 
-	return &container, nil
+	fmt.Printf("Container Response: %+v\n", containerResponse.Container)
+
+	return &containerResponse.Container, nil
 }
 
 func (c *Client) ListContainers(namespace string) ([]Container, error) {
