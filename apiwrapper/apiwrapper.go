@@ -39,9 +39,10 @@ type ContainerListResponse struct {
 
 // CreateContainerRequest represents the request to create a container
 type CreateContainerRequest struct {
-	ID    string   `json:"id"`
-	Image string   `json:"image"`
-	Env   []string `json:"env"`
+	ID          string   `json:"id"`
+	Image       string   `json:"image"`
+	Env         []string `json:"env"`
+	StopTimeout int      `json:"stopTimeout"`
 }
 
 // CreateContainer creates a new container in the specified namespace
@@ -88,4 +89,67 @@ func (c *Client) ListContainers(namespace string) ([]Container, error) {
 	}
 
 	return resp.Containers, nil // Return the slice of containers
+}
+
+func (c *Client) DeleteContainer(namespace string, containerID string) (string, error) {
+	url := fmt.Sprintf("%s/namespaces/%s/containers/%s", BaseURL, namespace, containerID)
+	req, err := http.NewRequest("DELETE", url, nil)
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return containerID, err
+	}
+
+	response, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return containerID, err
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		return containerID, fmt.Errorf("API request failed with status code %d", response.StatusCode)
+	}
+
+	return containerID, nil
+}
+
+func (c *Client) StartContainer(namespace string, containerID string) (string, error) {
+	url := fmt.Sprintf("%s/namespaces/%s/containers/%s/start", BaseURL, namespace, containerID)
+	req, err := http.NewRequest("POST", url, nil)
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return containerID, err
+	}
+
+	response, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return containerID, err
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		return containerID, fmt.Errorf("API request failed with status code %d", response.StatusCode)
+	}
+
+	return containerID, nil
+}
+
+func (c *Client) StopContainer(namespace string, containerID string) (string, error) {
+	url := fmt.Sprintf("%s/namespaces/%s/containers/%s/stop", BaseURL, namespace, containerID)
+	req, err := http.NewRequest("POST", url, nil)
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return containerID, err
+	}
+
+	response, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return containerID, err
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		return containerID, fmt.Errorf("API request failed with status code %d", response.StatusCode)
+	}
+
+	return containerID, nil
 }
