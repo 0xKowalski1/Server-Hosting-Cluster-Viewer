@@ -21,14 +21,14 @@
 
      // Establishing a connection to the server-sent events endpoint
          const evtSource = new EventSource('/containers/{{.ID}}/status');
+     const logSource = new  EventSource('/containers/{{.ID}}/logs');
+
 
 
 // Handle heartbeat messages
 evtSource.onmessage = function(event) {
-    console.log(event);
     if(event.data === ":heartbeat" || event.data === "event:status" || event.data.length === 0) {
         console.log("Received heartbeat/status");
-        // Optionally update some UI element or ignore
     }else{
  const data = JSON.parse(event.data);
         if(data.DesiredStatus !== data.Status){
@@ -40,6 +40,11 @@ evtSource.onmessage = function(event) {
         }
     }
 };
+
+     logSource.onmessage = function(event){
+         document.getElementById("{{.ID}}-logs").innerHTML += event.data + "<br>";
+          document.getElementById("{{.ID}}-logs").scrollTop =  document.getElementById("{{.ID}}-logs").scrollHeight;
+     };
 </script>
 
                 <div class="px-4 py-4 sm:px-6">
@@ -64,6 +69,9 @@ evtSource.onmessage = function(event) {
                             <button hx-delete="/containers/{{.ID}}" hx-target="#{{.ID}}-container"  hx-swap="innerHTML" class="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-700">Delete</button>
                         </div>
                     </div>
+                    <pre id="{{.ID}}-logs" class="bg-black text-green-500 max-h-96 overflow-hidden p-4">
+
+                    </pre>
                 </div>
             </li>
 

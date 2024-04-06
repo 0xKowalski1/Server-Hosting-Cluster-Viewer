@@ -48,6 +48,7 @@ func main() {
 	e.POST("/containers/:id/start", startContainer)
 	e.POST("/containers/:id/stop", stopContainer)
 	e.GET("/containers/:id/status", watchContainer)
+	e.GET("/containers/:id/logs", streamContainerLogs)
 
 	e.Logger.Fatal(e.Start(":3000"))
 }
@@ -119,6 +120,42 @@ func watchContainer(c echo.Context) error {
 	err := apiClient.WatchContainer(containerID, func(data string) {
 		// Construct an SSE formatted message
 		_, writeErr := c.Response().Write([]byte(data + "\n\n"))
+		if writeErr != nil {
+			log.Printf("Error writing to client: %v", writeErr)
+
+			return
+		}
+		c.Response().Flush()
+	})
+
+	if err != nil {
+		// Handle the error
+		log.Printf("Error streaming updates: %v", err)
+		return err
+	}
+
+	select {
+	case <-c.Request().Context().Done():
+		// The client disconnected
+		log.Println("Client disconnected")
+	}
+
+	return nil
+}
+
+func streamContainerLogs(c echo.Context) error {
+	containerID := c.Param("id") // Get container ID from the request path
+
+	c.Response().Header().Set(echo.HeaderContentType, "text/event-stream")
+	c.Response().Header().Set(echo.HeaderCacheControl, "no-cache")
+	c.Response().Header().Set("Connection", "keep-alive")
+
+	c.Response().WriteHeader(200)
+
+	// Stream updates from the orchestrator and send to the client
+	err := apiClient.StreamContainerLogs(containerID, func(data string) {
+		// Construct an SSE formatted message
+		_, writeErr := c.Response().Write([]byte("data: " + data + "\n\n"))
 		if writeErr != nil {
 			log.Printf("Error writing to client: %v", writeErr)
 
