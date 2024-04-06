@@ -5,9 +5,12 @@ import (
 	"io"
 
 	"0xKowalski1/container-orchestrator/api"
+	"0xKowalski1/container-orchestrator/models"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
+
+var namespace string = "development" // temp
 
 var apiClient *api.WrapperClient // API client instance
 
@@ -26,7 +29,7 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 }
 
 func main() {
-	apiClient = api.NewApiWrapper() // Initialize the API client
+	apiClient = api.NewApiWrapper(namespace) // Initialize the API client
 
 	e := echo.New()
 
@@ -55,9 +58,8 @@ func listContainers(c echo.Context) error {
 }
 
 func createContainer(c echo.Context) error {
-	namespace := "example"
 
-	req := api.CreateContainerRequest{
+	req := models.CreateContainerRequest{
 		ID:          c.FormValue("id"),     // Use a unique identifier
 		Image:       c.FormValue("image"),  // Specify the container image
 		Env:         []string{"EULA=TRUE"}, // Any environment variables
@@ -72,7 +74,6 @@ func createContainer(c echo.Context) error {
 }
 
 func deleteContainer(c echo.Context) error {
-	namespace := "example"
 
 	_, err := apiClient.DeleteContainer(namespace, c.Param("id"))
 
@@ -83,7 +84,6 @@ func deleteContainer(c echo.Context) error {
 }
 
 func startContainer(c echo.Context) error {
-	namespace := "example"
 
 	_, err := apiClient.StartContainer(namespace, c.Param("id"))
 
@@ -94,7 +94,6 @@ func startContainer(c echo.Context) error {
 }
 
 func stopContainer(c echo.Context) error {
-	namespace := "example"
 
 	_, err := apiClient.StopContainer(namespace, c.Param("id"))
 
