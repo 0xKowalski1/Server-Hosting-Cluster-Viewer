@@ -3,9 +3,11 @@ package main
 import (
 	"html/template"
 	"io"
+	"log"
 
 	"0xKowalski1/container-orchestrator/api"
 	"0xKowalski1/container-orchestrator/models"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -45,12 +47,13 @@ func main() {
 	e.DELETE("/containers/:id", deleteContainer)
 	e.POST("/containers/:id/start", startContainer)
 	e.POST("/containers/:id/stop", stopContainer)
+	e.GET("/containers/:id/status", watchContainer)
 
 	e.Logger.Fatal(e.Start(":3000"))
 }
 
 func listContainers(c echo.Context) error {
-	containers, err := apiClient.ListContainers("example")
+	containers, err := apiClient.ListContainers()
 	if err != nil {
 		return err
 	}
@@ -66,7 +69,7 @@ func createContainer(c echo.Context) error {
 		StopTimeout: 5,
 	}
 
-	container, err := apiClient.CreateContainer(namespace, req)
+	container, err := apiClient.CreateContainer(req)
 	if err != nil {
 		return err
 	}
@@ -75,7 +78,7 @@ func createContainer(c echo.Context) error {
 
 func deleteContainer(c echo.Context) error {
 
-	_, err := apiClient.DeleteContainer(namespace, c.Param("id"))
+	_, err := apiClient.DeleteContainer(c.Param("id"))
 
 	if err != nil {
 		return err
@@ -85,7 +88,7 @@ func deleteContainer(c echo.Context) error {
 
 func startContainer(c echo.Context) error {
 
-	_, err := apiClient.StartContainer(namespace, c.Param("id"))
+	_, err := apiClient.StartContainer(c.Param("id"))
 
 	if err != nil {
 		return err
@@ -95,10 +98,46 @@ func startContainer(c echo.Context) error {
 
 func stopContainer(c echo.Context) error {
 
-	_, err := apiClient.StopContainer(namespace, c.Param("id"))
+	_, err := apiClient.StopContainer(c.Param("id"))
 
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func watchContainer(c echo.Context) error {
+	containerID := c.Param("id") // Get container ID from the request path
+
+	c.Response().Header().Set(echo.HeaderContentType, "text/event-stream")
+	c.Response().Header().Set(echo.HeaderCacheControl, "no-cache")
+	c.Response().Header().Set("Connection", "keep-alive")
+
+	c.Response().WriteHeader(200)
+
+	// Stream updates from the orchestrator and send to the client
+	err := apiClient.WatchContainer(containerID, func(data string) {
+		// Construct an SSE formatted message
+		_, writeErr := c.Response().Write([]byte(data + "\n\n"))
+		if writeErr != nil {
+			log.Printf("Error writing to client: %v", writeErr)
+
+			return
+		}
+		c.Response().Flush()
+	})
+
+	if err != nil {
+		// Handle the error
+		log.Printf("Error streaming updates: %v", err)
+		return err
+	}
+
+	select {
+	case <-c.Request().Context().Done():
+		// The client disconnected
+		log.Println("Client disconnected")
+	}
+
 	return nil
 }

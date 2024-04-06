@@ -17,11 +17,36 @@
 
 {{define "container"}}
  <li id="{{.ID}}-container">
+     <script>
+
+     // Establishing a connection to the server-sent events endpoint
+         const evtSource = new EventSource('/containers/{{.ID}}/status');
+
+
+// Handle heartbeat messages
+evtSource.onmessage = function(event) {
+    console.log(event);
+    if(event.data === ":heartbeat" || event.data === "event:status" || event.data.length === 0) {
+        console.log("Received heartbeat/status");
+        // Optionally update some UI element or ignore
+    }else{
+ const data = JSON.parse(event.data);
+        if(data.DesiredStatus !== data.Status){
+            const status = data.DesiredStatus === "running" ? "starting" : "stopping";
+            console.log(status);
+            document.getElementById("{{.ID}}-status").innerHTML = "Status: " + status;
+        }else{
+        document.getElementById("{{.ID}}-status").innerHTML = "Status: " + data.Status;
+        }
+    }
+};
+</script>
+
                 <div class="px-4 py-4 sm:px-6">
                     <div class="flex items-center justify-between">
                         <p class="text-sm font-medium text-indigo-600 truncate">ID: {{.ID}}</p>
                         <div class="ml-2 flex-shrink-0 flex">
-                            <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Status: {{.Status}}</p>
+                            <p id="{{.ID}}-status" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Status: {{.Status}}</p>
                         </div>
                     </div>
                     <div class="mt-2 sm:flex sm:justify-between">
