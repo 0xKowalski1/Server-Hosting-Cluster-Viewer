@@ -15,25 +15,55 @@
         <div class="mb-8">
             <h2 class="text-2xl font-semibold mb-4">Create a New Server</h2>
             <form hx-post="/create" hx-target="#list-placeholder" hx-swap="beforebegin" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="id">
-                        Container ID
-                    </label>
-                    <input value="minecraft-server-1" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" name="id" placeholder="Container ID" required>
-                </div>
-                <div class="mb-6">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="image">
-                        Container Image
-                    </label>
-                    <input value="docker.io/itzg/minecraft-server:latest" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" type="text" name="image" placeholder="Container Image" required>
-                </div>
-                <div class="flex items-center justify-between">
-                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
-                        Create Server
-                    </button>
-                </div>
-            </form>
-        </div>
+    <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="id">
+            Container ID
+        </label>
+        <input value="minecraft-server-1" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" name="id" placeholder="Container ID" required>
+    </div>
+    <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="image">
+            Container Image
+        </label>
+        <input value="docker.io/itzg/minecraft-server:latest" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" name="image" placeholder="Container Image" required>
+    </div>
+    <!-- New Environment Variables Input -->
+    <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="env">
+            Environment Variables
+        </label>
+        <input value="EULA=TRUE,MEMORY=4G" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" name="env" placeholder="EULA=TRUE,MEMORY=4G" required>
+        <p class="text-gray-600 text-xs italic">Enter variables separated by commas, e.g., "EULA=TRUE,MEMORY=4G"</p>
+    </div>
+    <!-- New Stop Timeout Input -->
+    <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="stopTimeout">
+            Stop Timeout (seconds)
+        </label>
+        <input value="5" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="number" name="stopTimeout" placeholder="5" required>
+    </div>
+    <!-- New Memory Limit Input -->
+    <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="memoryLimit">
+            Memory Limit (GiB)
+        </label>
+        <input value="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="number" name="memoryLimit" placeholder="4" required>
+    </div>
+    <!-- New CPU Limit Input -->
+    <div class="mb-6">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="cpuLimit">
+            CPU Limit (Cores)
+        </label>
+        <input value="1" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="number" name="cpuLimit" placeholder="1" required>
+    </div>
+    <div class="flex items-center justify-between">
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+            Create Server
+        </button>
+    </div>
+</form>
+
+             </div>
 
         <!-- Container list will be updated here -->
         <div  class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">

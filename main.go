@@ -1,12 +1,16 @@
 package main
 
 import (
+	"context"
 	"html/template"
 	"io"
 	"log"
+	"strconv"
 
 	"0xKowalski1/container-orchestrator/api"
 	"0xKowalski1/container-orchestrator/models"
+
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -62,13 +66,25 @@ func listContainers(c echo.Context) error {
 }
 
 func createContainer(c echo.Context) error {
+	stopTimeout, err := strconv.Atoi(c.FormValue("stopTimeout"))
+	if err != nil {
+		stopTimeout = 5
+	}
+
+	memoryLimit, _ := strconv.Atoi(c.FormValue("memoryLimit"))
+
+	cpuLimit, _ := strconv.Atoi(c.FormValue("cpuLimit"))
+
+	// Splitting the comma-separated environment variables string into a slice of strings.
+	env := strings.Split(c.FormValue("env"), ",")
 
 	req := models.CreateContainerRequest{
-		ID:          c.FormValue("id"),     // Use a unique identifier
-		Image:       c.FormValue("image"),  // Specify the container image
-		Env:         []string{"EULA=TRUE"}, // Any environment variables
-		StopTimeout: 5,
-	}
+		ID:          c.FormValue("id"),
+		Image:       c.FormValue("image"),
+		Env:         env,
+		StopTimeout: stopTimeout,
+		MemoryLimit: memoryLimit,
+		CpuLimit:    cpuLimit}
 
 	container, err := apiClient.CreateContainer(req)
 	if err != nil {
@@ -113,33 +129,35 @@ func watchContainer(c echo.Context) error {
 	c.Response().Header().Set(echo.HeaderContentType, "text/event-stream")
 	c.Response().Header().Set(echo.HeaderCacheControl, "no-cache")
 	c.Response().Header().Set("Connection", "keep-alive")
-
 	c.Response().WriteHeader(200)
+
+	ctx, cancel := context.WithCancel(c.Request().Context()) // Create a cancellable context
+	defer cancel()                                           // Ensure cancel is called to clean up the context
 
 	// Stream updates from the orchestrator and send to the client
 	err := apiClient.WatchContainer(containerID, func(data string) {
-		// Construct an SSE formatted message
-		_, writeErr := c.Response().Write([]byte(data + "\n\n"))
-		if writeErr != nil {
-			log.Printf("Error writing to client: %v", writeErr)
-
+		select {
+		case <-ctx.Done(): // Check if client has disconnected
+			log.Println("Status client disconnected, stopping data stream.")
 			return
+		default:
+			_, writeErr := c.Response().Write([]byte(data + "\n\n"))
+			if writeErr != nil {
+				log.Printf("Error writing to client: %v", writeErr)
+				cancel() // Stop the data stream on error
+				return
+			}
+			c.Response().Flush()
 		}
-		c.Response().Flush()
 	})
 
 	if err != nil {
-		// Handle the error
 		log.Printf("Error streaming updates: %v", err)
 		return err
 	}
 
-	select {
-	case <-c.Request().Context().Done():
-		// The client disconnected
-		log.Println("Client disconnected")
-	}
-
+	<-ctx.Done() // Wait for the context to be cancelled
+	log.Println("Finished streaming container updates.")
 	return nil
 }
 
@@ -149,32 +167,34 @@ func streamContainerLogs(c echo.Context) error {
 	c.Response().Header().Set(echo.HeaderContentType, "text/event-stream")
 	c.Response().Header().Set(echo.HeaderCacheControl, "no-cache")
 	c.Response().Header().Set("Connection", "keep-alive")
-
 	c.Response().WriteHeader(200)
+
+	ctx, cancel := context.WithCancel(c.Request().Context()) // Create a cancellable context
+	defer cancel()                                           // Ensure cancel is called to clean up the context
 
 	// Stream updates from the orchestrator and send to the client
 	err := apiClient.StreamContainerLogs(containerID, func(data string) {
-		// Construct an SSE formatted message
-		_, writeErr := c.Response().Write([]byte("data: " + data + "\n\n"))
-		if writeErr != nil {
-			log.Printf("Error writing to client: %v", writeErr)
-
+		select {
+		case <-ctx.Done(): // Check if client has disconnected
+			log.Println("Stream client disconnected, stopping log stream.")
 			return
+		default:
+			_, writeErr := c.Response().Write([]byte("data: " + data + "\n\n"))
+			if writeErr != nil {
+				log.Printf("Error writing to client: %v", writeErr)
+				cancel() // Stop the log stream on error
+				return
+			}
+			c.Response().Flush()
 		}
-		c.Response().Flush()
 	})
 
 	if err != nil {
-		// Handle the error
-		log.Printf("Error streaming updates: %v", err)
+		log.Printf("Error streaming container logs: %v", err)
 		return err
 	}
 
-	select {
-	case <-c.Request().Context().Done():
-		// The client disconnected
-		log.Println("Client disconnected")
-	}
-
+	<-ctx.Done() // Wait for the context to be cancelled
+	log.Println("Finished streaming container logs.")
 	return nil
 }
