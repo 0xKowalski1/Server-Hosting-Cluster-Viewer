@@ -25,7 +25,7 @@
         <label class="block text-gray-700 text-sm font-bold mb-2" for="image">
             Container Image
         </label>
-        <input value="docker.io/itzg/minecraft-server:latest" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" name="image" placeholder="Container Image" required>
+        <input value="localhost:5000/minecraft:latest" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" name="image" placeholder="Container Image" required>
     </div>
     <!-- New Environment Variables Input -->
     <div class="mb-4">
@@ -56,6 +56,14 @@
         </label>
         <input value="1" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="number" name="cpuLimit" placeholder="1" required>
     </div>
+    <!-- New Port Mappings Input -->
+<div class="mb-4">
+    <label class="block text-gray-700 text-sm font-bold mb-2" for="portMapping">
+        Port Mapping
+    </label>
+    <input value="30000:25565/tcp" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" name="portMapping" placeholder="30001:25565/tcp" required>
+    <p class="text-gray-600 text-xs italic">Enter host and container ports followed by protocol, e.g., "30001:25565/tcp"</p>
+</div>
     <div class="flex items-center justify-between">
         <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
             Create Server

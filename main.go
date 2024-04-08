@@ -78,13 +78,40 @@ func createContainer(c echo.Context) error {
 	// Splitting the comma-separated environment variables string into a slice of strings.
 	env := strings.Split(c.FormValue("env"), ",")
 
+	// Parse the port mapping input
+	portMappingStr := c.FormValue("portMapping")
+	var ports []models.Port
+	if portMappingStr != "" {
+		parts := strings.Split(portMappingStr, ":")
+		if len(parts) == 2 {
+			portParts := strings.Split(parts[1], "/")
+			if len(portParts) == 2 {
+				hostPort, err := strconv.Atoi(parts[0])
+				if err != nil {
+					return err
+				}
+				containerPort, err := strconv.Atoi(portParts[0])
+				if err != nil {
+					return err
+				}
+				ports = append(ports, models.Port{
+					HostPort:      hostPort,
+					ContainerPort: containerPort,
+					Protocol:      portParts[1],
+				})
+			}
+		}
+	}
+
 	req := models.CreateContainerRequest{
 		ID:          c.FormValue("id"),
 		Image:       c.FormValue("image"),
 		Env:         env,
 		StopTimeout: stopTimeout,
 		MemoryLimit: memoryLimit,
-		CpuLimit:    cpuLimit}
+		CpuLimit:    cpuLimit,
+		Ports:       ports,
+	}
 
 	container, err := apiClient.CreateContainer(req)
 	if err != nil {
