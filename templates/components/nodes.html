@@ -1,0 +1,15 @@
+{{ define "nodes" }}
+<div>
+    <ul>
+    {{ range . }}
+        {{ template "node" .}}
+    {{ end }}
+    </ul>
+</div>
+{{ end }}
+
+{{ define "node" }}
+    <li>
+        {{.ID}}
+    </li>
+{{ end }}
