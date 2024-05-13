@@ -1,9 +1,51 @@
 package templates
 
-import "0xKowalski1/container-orchestrator/models"
+import(
+    "0xKowalski1/container-orchestrator/models"
+    "strconv"
+)
 
 templ ContainersPage(containers []models.Container) {
-        <div>
-        len(containers)
+    <div class="p-8 min-h-screen bg-gray-100">
+        <h1 class="text-3xl font-bold mb-6 text-center text-blue-600">Containers</h1>
+        @ContainersList(containers)
+    </div>
+}
+
+templ ContainersList(containers []models.Container) {
+    if len(containers) == 0 {
+        <div class="p-8 mt-20 text-center">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">No containers in cluster.</h2>
         </div>
+    } else {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            for _, container := range containers {
+                @ContainerCard(container)
+            }
+        </div>
+    }
+}
+
+templ ContainerCard(container models.Container) {
+    <div 
+        id={"container-" + container.ID} 
+        class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-300 cursor-pointer" 
+        hx-target="#content" 
+        hx-swap="innerHTML"
+    >
+        <div class="mb-4">
+            <div class="text-lg font-semibold text-gray-900 mb-2">Container ID: {container.ID}1</div>
+            <div class="text-sm text-gray-500">Image: {container.Image}</div>
+        </div>
+        <div class="mb-4">
+            <p class="text-sm text-gray-600"><span class="font-bold">Status:</span> {container.Status}</p>
+            <p class="text-sm text-gray-600"><span class="font-bold">Desired Status:</span> {container.DesiredStatus}</p>
+            <p class="text-sm text-gray-600"><span class="font-bold">Node:</span> {container.NodeID}</p>
+        </div>
+        <div class="mb-4">
+            <p class="text-sm text-gray-600"><span class="font-bold">Memory:</span> {strconv.Itoa(container.MemoryLimit)} MB</p>
+            <p class="text-sm text-gray-600"><span class="font-bold">CPU:</span> {strconv.FormatFloat(container.CpuLimit, 'f', 2, 64)} cores</p>
+            <p class="text-sm text-gray-600"><span class="font-bold">Storage:</span> {strconv.Itoa(container.StorageLimit)} GB</p>
+        </div>
+    </div>
 }

@@ -25,6 +25,7 @@ func main() {
 	containerService := services.NewContainerService(orchestratorWrapper)
 
 	// Handlers
+	homeHandler := handlers.NewHomeHandler()
 	containerHandler := handlers.NewContainerHandler(containerService)
 
 	// Middleware
@@ -38,6 +39,8 @@ func main() {
 	}))
 
 	// Routes
+	e.GET("/", homeHandler.GetHome)
+
 	e.GET("/containers", containerHandler.GetContainers)
 
 	fmt.Printf("Listening on :3001")
