@@ -1,4 +1,4 @@
-module 0xKowalski1/server-hosting
+module 0xKowalski1/cluster-web-viewer
 
 go 1.21.8
 
@@ -6,6 +6,7 @@ replace 0xKowalski1/container-orchestrator => ../container-orchestrator
 
 require (
 	0xKowalski1/container-orchestrator v0.0.0-00010101000000-000000000000
+	github.com/a-h/templ v0.2.680
 	github.com/labstack/echo/v4 v4.11.4
 )
 
@@ -42,13 +43,12 @@ require (
 	go.etcd.io/etcd/api/v3 v3.5.13 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.13 // indirect
 	go.etcd.io/etcd/client/v3 v3.5.13 // indirect
-	go.uber.org/atomic v1.7.0 // indirect
-	go.uber.org/multierr v1.6.0 // indirect
-	go.uber.org/zap v1.17.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
+	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/arch v0.7.0 // indirect
-	golang.org/x/crypto v0.21.0 // indirect
-	golang.org/x/net v0.22.0 // indirect
-	golang.org/x/sys v0.18.0 // indirect
+	golang.org/x/crypto v0.22.0 // indirect
+	golang.org/x/net v0.24.0 // indirect
+	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/genproto v0.0.0-20240123012728-ef4313101c80 // indirect

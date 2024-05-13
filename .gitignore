@@ -1,2 +1,5 @@
+bin
 tmp
-go.sum
+*_templ.go
+assets/css/tailwind.css
+assets/css/tailwind.min.css
