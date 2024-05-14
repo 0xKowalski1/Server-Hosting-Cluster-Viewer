@@ -85,13 +85,15 @@ templ NewContainersPage(formData models.CreateContainerRequest) {
 
 templ ContainersPage(containers []models.Container) {
         <h1 class="text-3xl font-bold mb-6 text-center text-blue-600">Containers</h1>
+        <a href="/containers/new" hx-get="/containers/new" hx-swap="innerHTML" hx-target="#content" hx-push-url="true" class="px-4 py-2 mb-5 bg-green-500 text-white font-semibold rounded-md hover:bg-green-700 transition duration-300">New Container</a>
+
         @ContainersList(containers)
 }
 
 templ ContainersList(containers []models.Container) {
-        <a href="/containers/new" hx-get="/containers/new" hx-swap="innerHTML" hx-target="#content" hx-push-url="true">New Container</a>
+        <div class="mt-10">
     if len(containers) == 0 {
-        <div class="p-8 mt-20 text-center">
+        <div class="p-8 text-center">
             <h2 class="text-xl font-semibold text-gray-700 mb-4">No containers in cluster.</h2>
         </div>
     } else {
@@ -101,6 +103,7 @@ templ ContainersList(containers []models.Container) {
             }
         </div>
     }
+    </div>
 }
 
 templ ContainerCard(container models.Container) {
@@ -123,7 +126,7 @@ templ ContainerCard(container models.Container) {
             <p class="text-sm text-gray-600"><span class="font-bold">Storage:</span> {strconv.Itoa(container.StorageLimit)} GB</p>
         </div>
 
-                <a href={templ.URL(fmt.Sprintf("/containers/%s", container.ID))} hx-get={fmt.Sprintf("/containers/%s", container.ID)} hx-swap="innerHTML" hx-target="#content" hx-push-url="true" >View More</a>
+                <a href={templ.URL(fmt.Sprintf("/containers/%s", container.ID))} hx-get={fmt.Sprintf("/containers/%s", container.ID)} hx-swap="innerHTML" hx-target="#content" hx-push-url="true" class="px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-700 transition duration-300">View More</a>
     </div>
 }
 
