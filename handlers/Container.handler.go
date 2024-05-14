@@ -162,3 +162,47 @@ func (handler *ContainerHandler) DeleteContainer(c echo.Context) error {
 	c.Response().Header().Set("HX-Replace-Url", "/containers")
 	return handler.GetContainers(c)
 }
+
+func (handler *ContainerHandler) GetContainerLogs(c echo.Context) error {
+	return Render(c, 200, templates.ContainerLogsPage(c.Param("containerID")))
+}
+
+func (handler *ContainerHandler) StreamContainerLogs(c echo.Context) error {
+	containerID := c.Param("containerID")
+	log.Println("Streaming logs for container:", containerID)
+
+	c.Response().Header().Set(echo.HeaderContentType, "text/event-stream")
+	c.Response().Header().Set("Cache-Control", "no-cache")
+	c.Response().Header().Set("Connection", "keep-alive")
+
+	flusher, ok := c.Response().Writer.(http.Flusher)
+	if !ok {
+		return fmt.Errorf("streaming unsupported")
+	}
+
+	clientGone := c.Request().Context().Done()
+
+	handleData := func(logLine string) {
+		select {
+		case <-clientGone:
+			log.Println("Client disconnected, stopping log stream")
+			return
+		default:
+			message := "<div>" + logLine + "</div>\n"
+			_, err := c.Response().Write([]byte("data: " + message + "\n\n"))
+			if err != nil {
+				log.Println("Error writing to response:", err)
+				return
+			}
+			flusher.Flush()
+		}
+	}
+
+	err := handler.containerService.StreamContainerLogs(containerID, handleData)
+	if err != nil {
+		log.Println("Error streaming container logs:", err)
+		return err
+	}
+
+	return nil
+}

@@ -28,3 +28,7 @@ func (service *ContainerService) CreateContainer(newContainerRequest models.Crea
 func (service *ContainerService) DeleteContainer(containerID string) error {
 	return service.orchestratorWrapper.DeleteContainer(containerID)
 }
+
+func (service *ContainerService) StreamContainerLogs(containerID string, handleData func(string)) error {
+	return service.orchestratorWrapper.StreamContainerLogs(containerID, handleData)
+}

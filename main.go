@@ -43,6 +43,8 @@ func main() {
 
 	e.GET("/containers", containerHandler.GetContainers)
 	e.GET("/containers/:containerID", containerHandler.GetContainer)
+	e.GET("/containers/:containerID/logs", containerHandler.GetContainerLogs)
+	e.GET("/containers/:containerID/logs/stream", containerHandler.StreamContainerLogs)
 	e.GET("/containers/new", containerHandler.NewContainer)
 	e.POST("/containers", containerHandler.CreateContainer)
 	e.DELETE("/containers/:containerID", containerHandler.DeleteContainer)
