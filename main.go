@@ -23,10 +23,12 @@ func main() {
 
 	// Services
 	containerService := services.NewContainerService(orchestratorWrapper)
+	nodeService := services.NewNodeService(orchestratorWrapper)
 
 	// Handlers
 	homeHandler := handlers.NewHomeHandler()
 	containerHandler := handlers.NewContainerHandler(containerService)
+	nodeHandler := handlers.NewNodeHandler(nodeService)
 
 	// Middleware
 	//e.Use(echomiddleware.Logger())
@@ -41,6 +43,7 @@ func main() {
 	// Routes
 	e.GET("/", homeHandler.GetHome)
 
+	// /containers
 	e.GET("/containers", containerHandler.GetContainers)
 	e.GET("/containers/:containerID", containerHandler.GetContainer)
 	e.GET("/containers/:containerID/logs", containerHandler.GetContainerLogs)
@@ -48,6 +51,9 @@ func main() {
 	e.GET("/containers/new", containerHandler.NewContainer)
 	e.POST("/containers", containerHandler.CreateContainer)
 	e.DELETE("/containers/:containerID", containerHandler.DeleteContainer)
+
+	// /nodes
+	e.GET("/nodes", nodeHandler.GetNodes)
 
 	fmt.Printf("Listening on :3001")
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":3001")))
