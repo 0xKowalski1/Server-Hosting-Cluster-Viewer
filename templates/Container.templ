@@ -3,13 +3,111 @@ package templates
 import(
     "0xKowalski1/container-orchestrator/models"
     "strconv"
+    "fmt"
 )
 
+templ ContainerPage(container models.Container) {
+        <h1 class="text-3xl font-bold mb-6 text-center text-blue-800">Container Details</h1>
+        
+      <div class="flex flex-row justify-center items-center pb-4">
+    <a class="mr-5 px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-700 transition duration-300" 
+       href={templ.URL(fmt.Sprintf("/containers/%s/edit", container.ID))} 
+       hx-get={string(templ.URL(fmt.Sprintf("/containers/%s/edit", container.ID)))} 
+       hx-swap="innerHTML" 
+       hx-target="#content" 
+       hx-push-url="true">
+        Edit
+    </a>
+    <button class="px-4 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-700 transition duration-300" 
+            hx-delete={string(templ.URL(fmt.Sprintf("/containers/%s", container.ID)))} 
+            hx-confirm="Are you sure you want to delete this container?"
+            hx-swap="innerHTML" 
+            hx-target="#content">
+        Delete
+    </button>
+</div>
+
+
+        <div class="container-details mb-8 bg-white shadow-md rounded-lg p-6">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800  pb-2">General Information</h2>
+            <table class="w-full table-auto">
+                <tr class="border-t">
+                    <th class="px-4 py-2 text-left text-gray-600">ID</th>
+                    <td class="px-4 py-2 text-gray-800">{container.ID}</td>
+                </tr>
+                <tr class="border-t">
+                    <th class="px-4 py-2 text-left text-gray-600">Desired Status</th>
+                    <td class="px-4 py-2 text-gray-800">{container.DesiredStatus}</td>
+                </tr>
+                <tr class="border-t">
+                    <th class="px-4 py-2 text-left text-gray-600">Status</th>
+                    <td class="px-4 py-2 text-gray-800">{container.Status}</td>
+                </tr>
+                <tr class="border-t">
+                    <th class="px-4 py-2 text-left text-gray-600">Namespace ID</th>
+                    <td class="px-4 py-2 text-gray-800">{container.NamespaceID}</td>
+                </tr>
+                <tr class="border-t">
+                    <th class="px-4 py-2 text-left text-gray-600">Node ID</th>
+                    <td class="px-4 py-2 text-gray-800">{container.NodeID}</td>
+                </tr>
+                <tr class="border-t">
+                    <th class="px-4 py-2 text-left text-gray-600">Image</th>
+                    <td class="px-4 py-2 text-gray-800">{container.Image}</td>
+                </tr>
+                <tr class="border-t">
+                    <th class="px-4 py-2 text-left text-gray-600">Stop Timeout</th>
+                    <td class="px-4 py-2 text-gray-800">{strconv.Itoa(container.StopTimeout)}</td>
+                </tr>
+                <tr class="border-t">
+                    <th class="px-4 py-2 text-left text-gray-600">Memory Limit (GB)</th>
+                    <td class="px-4 py-2 text-gray-800">{strconv.Itoa(container.MemoryLimit)}</td>
+                </tr>
+                <tr class="border-t">
+                    <th class="px-4 py-2 text-left text-gray-600">CPU Limit</th>
+                    <td class="px-4 py-2 text-gray-800">{strconv.Itoa(container.CpuLimit)}</td>
+                </tr>
+                <tr class="border-t">
+                    <th class="px-4 py-2 text-left text-gray-600">Storage Limit (GB)</th>
+                    <td class="px-4 py-2 text-gray-800">{strconv.Itoa(container.StorageLimit)}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="environment-variables mb-8 bg-white shadow-md rounded-lg p-6">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800 pb-2">Environment Variables</h2>
+            <table class="w-full table-auto">
+                 for _, env := range container.Env {
+                    <tr class="border-t">
+                        <td class="px-4 py-2 text-gray-800">{env}</td>
+                    </tr>
+                }
+            </table>
+        </div>
+
+        <div class="ports mb-8 bg-white shadow-md rounded-lg p-6">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800 border-b pb-2">Ports</h2>
+            <table class="w-full table-auto">
+                <tr class="border-t">
+                    <th class="px-4 py-2 text-left text-gray-600">Host Port</th>
+                    <th class="px-4 py-2 text-left text-gray-600">Container Port</th>
+                    <th class="px-4 py-2 text-left text-gray-600">Protocol</th>
+                </tr>
+                 for _, port := range container.Ports {
+                    <tr class="border-t">
+                        <td class="px-4 py-2 text-gray-800">{strconv.Itoa(port.HostPort)}</td>
+                        <td class="px-4 py-2 text-gray-800">{strconv.Itoa(port.ContainerPort)}</td>
+                        <td class="px-4 py-2 text-gray-800">{port.Protocol}</td>
+                    </tr>
+                }
+            </table>
+        </div>
+}
+
+
 templ ContainersPage(containers []models.Container) {
-    <div class="p-8 min-h-screen bg-gray-100">
         <h1 class="text-3xl font-bold mb-6 text-center text-blue-600">Containers</h1>
         @ContainersList(containers)
-    </div>
 }
 
 templ ContainersList(containers []models.Container) {
@@ -29,12 +127,10 @@ templ ContainersList(containers []models.Container) {
 templ ContainerCard(container models.Container) {
     <div 
         id={"container-" + container.ID} 
-        class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-300 cursor-pointer" 
-        hx-target="#content" 
-        hx-swap="innerHTML"
+        class="bg-white rounded-lg shadow-lg p-6"  
     >
         <div class="mb-4">
-            <div class="text-lg font-semibold text-gray-900 mb-2">Container ID: {container.ID}1</div>
+            <div class="text-lg font-semibold text-gray-900 mb-2">Container ID: {container.ID}</div>
             <div class="text-sm text-gray-500">Image: {container.Image}</div>
         </div>
         <div class="mb-4">
@@ -44,8 +140,10 @@ templ ContainerCard(container models.Container) {
         </div>
         <div class="mb-4">
             <p class="text-sm text-gray-600"><span class="font-bold">Memory:</span> {strconv.Itoa(container.MemoryLimit)} MB</p>
-            <p class="text-sm text-gray-600"><span class="font-bold">CPU:</span> {strconv.FormatFloat(container.CpuLimit, 'f', 2, 64)} cores</p>
+            <p class="text-sm text-gray-600"><span class="font-bold">CPU:</span> {strconv.Itoa(container.CpuLimit)} cores</p>
             <p class="text-sm text-gray-600"><span class="font-bold">Storage:</span> {strconv.Itoa(container.StorageLimit)} GB</p>
         </div>
+
+                <a href={templ.URL(fmt.Sprintf("/containers/%s", container.ID))} hx-get={fmt.Sprintf("/containers/%s", container.ID)} hx-swap="innerHTML" hx-target="#content" hx-push-url="true" >View More</a>
     </div>
 }

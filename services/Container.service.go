@@ -16,3 +16,11 @@ func NewContainerService(orchestratorWrapper *Orchestrator.WrapperClient) *Conta
 func (service *ContainerService) GetContainers() ([]models.Container, error) {
 	return service.orchestratorWrapper.ListContainers()
 }
+
+func (service *ContainerService) GetContainer(containerID string) (*models.Container, error) {
+	return service.orchestratorWrapper.GetContainer(containerID)
+}
+
+func (service *ContainerService) DeleteContainer(containerID string) error {
+	return service.orchestratorWrapper.DeleteContainer(containerID)
+}

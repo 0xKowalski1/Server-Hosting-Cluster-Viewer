@@ -11,11 +11,11 @@ templ Layout(content templ.Component){
 <link rel="icon" type="image/x-icon" href="/images/logo.jpg"/>
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-200 min-h-screen">
 
 @header()
 
-<main id='content' hx-swap="innerHTML" class="p-4">
+<main id='content' hx-swap="innerHTML" class="p-8">
 <!-- SPA renders content here -->
 @content
 </main>
@@ -28,12 +28,12 @@ templ header(){
 <nav class="bg-blue-600 p-4 shadow-md">
   <div class="container mx-auto flex justify-between items-center">
     <div class="text-white text-xl font-bold">
-      <a href="/" class="hover:text-gray-300" hx-get="/" hx-target="#content" hx-swap="innerHTML">Cluster Web Viewer</a>
+      <a href="/" class="hover:text-gray-300" hx-get="/" hx-target="#content" hx-swap="innerHTML" hx-push-url="true">Cluster Web Viewer</a>
     </div>
     <div class="space-x-6">
-      <a href="/" class="text-white hover:text-gray-300" hx-get="/" hx-target="#content" hx-swap="innerHTML">Home</a>
-      <a href="/containers" class="text-white hover:text-gray-300" hx-get="/containers" hx-target="#content" hx-swap="innerHTML">Containers</a>
-      <a href="/nodes" class="text-white hover:text-gray-300" hx-get="/nodes" hx-target="#content" hx-swap="innerHTML">Nodes</a>
+      <a href="/" class="text-white hover:text-gray-300" hx-get="/" hx-target="#content" hx-swap="innerHTML" hx-push-url="true">Home</a>
+      <a href="/containers" class="text-white hover:text-gray-300" hx-get="/containers" hx-target="#content" hx-swap="innerHTML" hx-push-url="true">Containers</a>
+      <a href="/nodes" class="text-white hover:text-gray-300" hx-get="/nodes" hx-target="#content" hx-swap="innerHTML" hx-push-url="true">Nodes</a>
     </div>
   </div>
 </nav>

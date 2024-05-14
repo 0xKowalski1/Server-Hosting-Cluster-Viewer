@@ -29,7 +29,7 @@ func main() {
 	containerHandler := handlers.NewContainerHandler(containerService)
 
 	// Middleware
-	e.Use(echomiddleware.Logger())
+	//e.Use(echomiddleware.Logger())
 
 	// Configure CORS
 	e.Use(echomiddleware.CORSWithConfig(echomiddleware.CORSConfig{
@@ -42,6 +42,8 @@ func main() {
 	e.GET("/", homeHandler.GetHome)
 
 	e.GET("/containers", containerHandler.GetContainers)
+	e.GET("/containers/:containerID", containerHandler.GetContainer)
+	e.DELETE("/containers/:containerID", containerHandler.DeleteContainer)
 
 	fmt.Printf("Listening on :3001")
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":3001")))
