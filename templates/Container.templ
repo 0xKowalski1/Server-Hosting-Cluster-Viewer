@@ -4,7 +4,105 @@ import(
     "0xKowalski1/container-orchestrator/models"
     "strconv"
     "fmt"
+    "strings"
 )
+
+
+func ConvertPortsToString(ports []models.Port) string {
+    var portsStr []string
+    for _, port := range ports {
+        portsStr = append(portsStr, strconv.Itoa(port.HostPort) + ":" + strconv.Itoa(port.ContainerPort) + "/" + port.Protocol)
+    }
+    return strings.Join(portsStr, ",")
+}
+
+templ NewContainersPage(formData models.CreateContainerRequest) {
+    <div class="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-lg">
+        <h1 class="text-2xl font-bold mb-6">Create New Container</h1>
+        <form id="create-container-form" hx-post="/containers" hx-target="#content" hx-swap="innerHTML" class="space-y-4">
+            <div>
+                <label for="id" class="block text-sm font-medium text-gray-700">Container ID</label>
+                <input type="text" id="id" name="id" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" value={formData.ID}>
+            </div>
+            <div>
+                <label for="image" class="block text-sm font-medium text-gray-700">Image</label>
+                <input type="text" id="image" name="image" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" value={formData.Image}>
+            </div>
+            <div>
+                <label for="env" class="block text-sm font-medium text-gray-700">Environment Variables (comma separated)</label>
+                <input type="text" id="env" name="env" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="EULA=TRUE,MEMORY=8" value={strings.Join(formData.Env, ",")}>
+            </div>
+            <div>
+                <label for="stopTimeout" class="block text-sm font-medium text-gray-700">Stop Timeout (seconds)</label>
+                <input type="number" id="stopTimeout" name="stopTimeout" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" value={strconv.Itoa(formData.StopTimeout)}>
+            </div>
+            <div>
+                <label for="memoryLimit" class="block text-sm font-medium text-gray-700">Memory Limit (MB)</label>
+                <input type="number" id="memoryLimit" name="memoryLimit" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" value={strconv.Itoa(formData.MemoryLimit)}>
+            </div>
+            <div>
+                <label for="cpuLimit" class="block text-sm font-medium text-gray-700">CPU Limit (Cores)</label>
+                <input type="number" id="cpuLimit" name="cpuLimit" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" value={strconv.Itoa(formData.CpuLimit)}>
+            </div>
+            <div>
+                <label for="storageLimit" class="block text-sm font-medium text-gray-700">Storage Limit (GB)</label>
+                <input type="number" id="storageLimit" name="storageLimit" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" value={strconv.Itoa(formData.StorageLimit)}>
+            </div>
+            <div>
+                <label for="ports" class="block text-sm font-medium text-gray-700">Ports (comma separated, format: hostPort:containerPort/protocol)</label>
+                <input type="text" id="ports" name="ports" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="25565:30000/tcp" value={ConvertPortsToString(formData.Ports)}>
+            </div>
+            <div>
+                <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-md">Create Container</button>
+            </div>
+        </form>
+        <div id="response" class="mt-4"></div>
+    </div>
+}
+
+templ ContainersPage(containers []models.Container) {
+        <h1 class="text-3xl font-bold mb-6 text-center text-blue-600">Containers</h1>
+        @ContainersList(containers)
+}
+
+templ ContainersList(containers []models.Container) {
+        <a href="/containers/new" hx-get="/containers/new" hx-swap="innerHTML" hx-target="#content" hx-push-url="true">New Container</a>
+    if len(containers) == 0 {
+        <div class="p-8 mt-20 text-center">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">No containers in cluster.</h2>
+        </div>
+    } else {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            for _, container := range containers {
+                @ContainerCard(container)
+            }
+        </div>
+    }
+}
+
+templ ContainerCard(container models.Container) {
+    <div 
+        id={"container-" + container.ID} 
+        class="bg-white rounded-lg shadow-lg p-6"  
+    >
+        <div class="mb-4">
+            <div class="text-lg font-semibold text-gray-900 mb-2">Container ID: {container.ID}</div>
+            <div class="text-sm text-gray-500">Image: {container.Image}</div>
+        </div>
+        <div class="mb-4">
+            <p class="text-sm text-gray-600"><span class="font-bold">Status:</span> {container.Status}</p>
+            <p class="text-sm text-gray-600"><span class="font-bold">Desired Status:</span> {container.DesiredStatus}</p>
+            <p class="text-sm text-gray-600"><span class="font-bold">Node:</span> {container.NodeID}</p>
+        </div>
+        <div class="mb-4">
+            <p class="text-sm text-gray-600"><span class="font-bold">Memory:</span> {strconv.Itoa(container.MemoryLimit)} MB</p>
+            <p class="text-sm text-gray-600"><span class="font-bold">CPU:</span> {strconv.Itoa(container.CpuLimit)} cores</p>
+            <p class="text-sm text-gray-600"><span class="font-bold">Storage:</span> {strconv.Itoa(container.StorageLimit)} GB</p>
+        </div>
+
+                <a href={templ.URL(fmt.Sprintf("/containers/%s", container.ID))} hx-get={fmt.Sprintf("/containers/%s", container.ID)} hx-swap="innerHTML" hx-target="#content" hx-push-url="true" >View More</a>
+    </div>
+}
 
 templ ContainerPage(container models.Container) {
         <h1 class="text-3xl font-bold mb-6 text-center text-blue-800">Container Details</h1>
@@ -105,45 +203,3 @@ templ ContainerPage(container models.Container) {
 }
 
 
-templ ContainersPage(containers []models.Container) {
-        <h1 class="text-3xl font-bold mb-6 text-center text-blue-600">Containers</h1>
-        @ContainersList(containers)
-}
-
-templ ContainersList(containers []models.Container) {
-    if len(containers) == 0 {
-        <div class="p-8 mt-20 text-center">
-            <h2 class="text-xl font-semibold text-gray-700 mb-4">No containers in cluster.</h2>
-        </div>
-    } else {
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            for _, container := range containers {
-                @ContainerCard(container)
-            }
-        </div>
-    }
-}
-
-templ ContainerCard(container models.Container) {
-    <div 
-        id={"container-" + container.ID} 
-        class="bg-white rounded-lg shadow-lg p-6"  
-    >
-        <div class="mb-4">
-            <div class="text-lg font-semibold text-gray-900 mb-2">Container ID: {container.ID}</div>
-            <div class="text-sm text-gray-500">Image: {container.Image}</div>
-        </div>
-        <div class="mb-4">
-            <p class="text-sm text-gray-600"><span class="font-bold">Status:</span> {container.Status}</p>
-            <p class="text-sm text-gray-600"><span class="font-bold">Desired Status:</span> {container.DesiredStatus}</p>
-            <p class="text-sm text-gray-600"><span class="font-bold">Node:</span> {container.NodeID}</p>
-        </div>
-        <div class="mb-4">
-            <p class="text-sm text-gray-600"><span class="font-bold">Memory:</span> {strconv.Itoa(container.MemoryLimit)} MB</p>
-            <p class="text-sm text-gray-600"><span class="font-bold">CPU:</span> {strconv.Itoa(container.CpuLimit)} cores</p>
-            <p class="text-sm text-gray-600"><span class="font-bold">Storage:</span> {strconv.Itoa(container.StorageLimit)} GB</p>
-        </div>
-
-                <a href={templ.URL(fmt.Sprintf("/containers/%s", container.ID))} hx-get={fmt.Sprintf("/containers/%s", container.ID)} hx-swap="innerHTML" hx-target="#content" hx-push-url="true" >View More</a>
-    </div>
-}
