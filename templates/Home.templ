@@ -8,12 +8,12 @@ templ HomePage(){
     <div class="p-4 bg-blue-100 rounded-lg shadow-sm">
       <h2 class="text-xl font-semibold">Containers</h2>
       <p class="text-gray-600">View and manage your containers efficiently.</p>
-      <a href="/containers" hx-get="/containers" hx-target="#content" hx-swap="innerHTML" class="text-blue-600 hover:underline">Go to Containers</a>
+      <a href="/containers" hx-get="/containers" hx-target="#content" hx-swap="innerHTML" hx-push-url="true" class="text-blue-600 hover:underline">Go to Containers</a>
     </div>
     <div class="p-4 bg-blue-100 rounded-lg shadow-sm">
       <h2 class="text-xl font-semibold">Nodes</h2>
       <p class="text-gray-600">View and manage your nodes effectively.</p>
-      <a href="/nodes" hx-get="/nodes" hx-target="#content" hx-swap="innerHTML" class="text-blue-600 hover:underline">Go to Nodes</a>
+      <a href="/nodes" hx-get="/nodes" hx-target="#content" hx-swap="innerHTML" hx-push-url="true" class="text-blue-600 hover:underline">Go to Nodes</a>
     </div>
   </div>
 </div>
