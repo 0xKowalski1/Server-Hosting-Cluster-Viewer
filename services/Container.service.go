@@ -1,7 +1,7 @@
 package services
 
 import (
-	Orchestrator "0xKowalski1/container-orchestrator/api"
+	Orchestrator "0xKowalski1/container-orchestrator/api-wrapper"
 	"0xKowalski1/container-orchestrator/models"
 )
 

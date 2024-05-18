@@ -9,12 +9,12 @@ import (
 
 	"0xKowalski1/cluster-web-viewer/handlers"
 	"0xKowalski1/cluster-web-viewer/services"
-	Orchestrator "0xKowalski1/container-orchestrator/api"
+	Orchestrator "0xKowalski1/container-orchestrator/api-wrapper"
 )
 
 func main() {
 	// Create a container orchestrator wrapper
-	orchestratorWrapper := Orchestrator.NewApiWrapper("development", "localhost") // Get me from env
+	orchestratorWrapper := Orchestrator.NewApiWrapper("localhost") // Get me from env
 
 	e := echo.New()
 
