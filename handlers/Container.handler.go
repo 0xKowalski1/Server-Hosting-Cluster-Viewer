@@ -47,7 +47,7 @@ func (handler *ContainerHandler) GetContainer(c echo.Context) error {
 func (handler *ContainerHandler) NewContainer(c echo.Context) error {
 	formData := models.CreateContainerRequest{
 		ID:    "minecraft-server-1",
-		Image: "europe-west2-docker.pkg.dev/server-hosting-420312/mc/minecraft:latest",
+		Image: "ghcr.io/0xkowalski1/minecraft-server:latest",
 		Env: []string{
 			"EULA=TRUE",
 			"MEMORY=4",

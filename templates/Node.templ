@@ -1,48 +1,56 @@
 package templates
 
 import (
-        "strconv"
-        "0xKowalski1/container-orchestrator/models"
+"0xKowalski1/container-orchestrator/models"
+"strconv"
 )
 
 templ NodesPage(nodes []models.Node) {
-        <h1 class="text-3xl font-bold mb-6 text-center text-blue-600">Nodes</h1>
-
-        @NodesList(nodes)
+<h1 class="text-3xl font-bold mb-6 text-center text-blue-600">Nodes</h1>
+@NodesList(nodes)
 }
 
 templ NodesList(nodes []models.Node) {
-        <div class="mt-10">
-    if len(nodes) == 0 {
+<div class="mt-10">
+        if len(nodes) == 0 {
         <div class="p-8 text-center">
-            <h2 class="text-xl font-semibold text-gray-700 mb-4">No nodes in cluster.</h2>
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">No nodes in cluster.</h2>
         </div>
-    } else {
+        } else {
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            for _, node := range nodes{
+                for _, node := range nodes {
                 @NodeCard(node)
-            }
+                }
         </div>
-    }
-    </div>
+        }
+</div>
 }
 
 templ NodeCard(node models.Node) {
-    <div 
-        id={"node-" + node.ID} 
-        class="bg-white rounded-lg shadow-lg p-6"  
-    >
+<div id={ "node-" + node.ID } class="bg-white rounded-lg shadow-lg p-6">
         <div class="mb-4">
-            <div class="text-lg font-semibold text-gray-900 mb-2">Node ID: {node.ID}</div>
-            <div class="text-sm text-gray-500">IP: {node.NodeIp}</div>
+                <div class="text-lg font-semibold text-gray-900 mb-2">Node ID: { node.ID }</div>
+                <div class="text-sm text-gray-500">IP: { node.NodeIp }</div>
         </div>
         <div class="mb-4">
-            <p class="text-sm text-gray-600"><span class="font-bold">Containers:</span> {strconv.Itoa(len(node.Containers))}</p>
+                <p class="text-sm text-gray-600">
+                        <span class="font-bold">Containers:</span> {
+                        strconv.Itoa(len(node.Containers)) }
+                </p>
         </div>
         <div class="mb-4">
-            <p class="text-sm text-gray-600"><span class="font-bold">Memory:</span> {strconv.Itoa(node.MemoryUsed)} GB / {strconv.Itoa(node.MemoryLimit)} GB</p>
-            <p class="text-sm text-gray-600"><span class="font-bold">CPU:</span> {strconv.Itoa(node.CpuUsed)} cores / {strconv.Itoa(node.CpuLimit)} cores</p>
-            <p class="text-sm text-gray-600"><span class="font-bold">Storage:</span> {strconv.Itoa(node.StorageUsed)} GB / {strconv.Itoa(node.StorageLimit)} GB</p>
+                <p class="text-sm text-gray-600">
+                        <span class="font-bold">Memory:</span> { strconv.Itoa(node.MemoryUsed) } GB / {
+                        strconv.Itoa(node.MemoryLimit) } GB
+                </p>
+                <p class="text-sm text-gray-600">
+                        <span class="font-bold">CPU:</span> { strconv.Itoa(node.CpuUsed) }
+                        cores / { strconv.Itoa(node.CpuLimit) } cores
+                </p>
+                <p class="text-sm text-gray-600">
+                        <span class="font-bold">Storage:</span> {
+                        strconv.Itoa(node.StorageUsed) } GB / { strconv.Itoa(node.StorageLimit) } GB
+                </p>
         </div>
-    </div>
+</div>
 }
